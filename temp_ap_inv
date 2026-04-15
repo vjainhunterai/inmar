@@ -1,6 +1,5 @@
 INSERT INTO l1_t0004_db.`temp_ap_inv`
 (
-
     `hash_key`,
     seq_no,
     `SUPPLIER_INVOICE`,
@@ -68,64 +67,59 @@ INSERT INTO l1_t0004_db.`temp_ap_inv`
 SELECT 
     SHA2(
         CONCAT_WS('|',
-            COALESCE(`Supplier Invoice Document`, ''),
-            COALESCE(`Company`, ''),
-            COALESCE(`Invoice Status`, ''),
-            COALESCE(`Supplier`, ''),
-            COALESCE(`Supplier ID`, ''),
-            COALESCE(CAST(`Invoice Date` AS CHAR), ''),
-            COALESCE(CAST(`Invoice Created Date` AS CHAR), ''),
-            COALESCE(`Purchase Orders`, ''),
-            COALESCE(`Purchase Order Line`, ''),
-            COALESCE(`Item`, ''),
-            COALESCE(`Unit of Measure`, ''),
-            COALESCE(CAST(`Distribution Quantity` AS CHAR), ''),
-            COALESCE(`Line Description`, ''),
-            COALESCE(CAST(`Unit Cost` AS CHAR), ''),
-            COALESCE(`Ledger Account`, ''),
-            COALESCE(`Spend Category`, ''),
-            COALESCE(`Cost Center`, ''),
-            COALESCE(`Cost Center ID`, ''),
-            COALESCE(`Payment Status`, ''),
-            COALESCE(CAST(`Payment Date` AS CHAR), ''),
-            COALESCE(`FY25?`, ''),
-            COALESCE(CAST(`Check Number` AS CHAR), ''),
-            COALESCE(CAST(`Freight Amount` AS CHAR), ''),
-            COALESCE(CAST(`Other Charges` AS CHAR), ''),
-            COALESCE(`Supplier Invoice Line Distribution`, ''),
-            COALESCE(CAST(`Invoice Line Amount` AS CHAR), ''),
-            COALESCE(CAST(`Invoice Total Amount` AS CHAR), ''),
-            COALESCE(CAST(`Derived Invoice Line Amount` AS CHAR), '')
+            COALESCE(`INVOICE_NUMBER_SUPPLIER`, ''),
+            COALESCE(`COMPANY_NAME`, ''),
+            COALESCE(`VENDOR_NAME`, ''),
+            COALESCE(`VENDOR_CODE`, ''),
+            COALESCE(`INVOICE_DATE`, ''),
+            COALESCE(`CREATED_ON_DATE`, ''),
+            COALESCE(`PO_NUMBER`, ''),
+            COALESCE(`INVOICE_LINE_QTY`, ''),
+            COALESCE(`ITEM_DESCRIPTION`, ''),
+            COALESCE(`UNIT_PURCHASE_PRICE_UOM`, ''),
+            COALESCE(`INVOICE_UNIT_PRICE`, ''),
+            COALESCE(`GL_ACCOUNT_NUMBER`, ''),
+            COALESCE(`COST_CENTER_CODE`, ''),
+            COALESCE(`PAYMENT_STATUS`, ''),
+            COALESCE(`PAYMENT_DATE`, ''),
+            COALESCE(`CHECK_NUMBER`, ''),
+            COALESCE(CAST(`INVOICE_LINE_AMOUNT` AS CHAR), ''),
+            COALESCE(CAST(`INVOICE_TOTAL_AMOUNT` AS CHAR), ''),
+            COALESCE(CAST(`SETTLEMENT_RUN_NUMBER` AS CHAR), '')
         ), 256
     ) AS `hash_key`,
     seq_no,
-    `Supplier Invoice Document`,                          -- SUPPLIER_INVOICE
-     `Supplier Invoice Document`,                                                  -- INVOICE_NUMBER (not in source)
-    `Company`,                                             -- COMPANY
-    `Invoice Status`,                                      -- INVOICE_STATUS
+    `INVOICE_NUMBER_SUPPLIER`,                             -- SUPPLIER_INVOICE
+    `INVOICE_NUMBER_SUPPLIER`,                             -- INVOICE_NUMBER
+    `COMPANY_NAME`,                                        -- COMPANY
+    NULL,                                                  -- INVOICE_STATUS (not in source)
     NULL,                                                  -- INTERCOMPANY
     NULL,                                                  -- DIRECT_INTERCOMPANY
-    `Supplier`,                                            -- SUPPLIER
-    `Supplier ID`,                                         -- SUPPLIER_ID
-    NULL,                                                  -- DEFAULT_PAYMENT_TERMS
-    NULL,                                                  -- DEFAULT_PAYMENT_TYPE
-     `Supplier Invoice Document`,                                                  -- SUPPLIERS_INVOICE_NUMBER
+    `VENDOR_NAME`,                                         -- SUPPLIER
+    `VENDOR_CODE`,                                         -- SUPPLIER_ID
+    `PAYMENT_TERMS_DESCRIPTION`,                           -- DEFAULT_PAYMENT_TERMS
+    `PAYMENT_METHOD`,                                      -- DEFAULT_PAYMENT_TYPE
+    `INVOICE_NUMBER_SUPPLIER`,                             -- SUPPLIERS_INVOICE_NUMBER
     CASE
-        WHEN LENGTH(SUBSTRING_INDEX(`Invoice Created Date`, '/', -1)) = 4
-            THEN STR_TO_DATE(`Invoice Created Date`, '%m/%d/%Y')
-        ELSE STR_TO_DATE(`Invoice Created Date`, '%m/%d/%y')
+        WHEN LENGTH(SUBSTRING_INDEX(`CREATED_ON_DATE`, '/', -1)) = 4
+            THEN STR_TO_DATE(`CREATED_ON_DATE`, '%m/%d/%Y')
+        ELSE STR_TO_DATE(`CREATED_ON_DATE`, '%m/%d/%y')
     END,                                                   -- CREATED_ON
     CASE
-        WHEN LENGTH(SUBSTRING_INDEX(`Invoice Date`, '/', -1)) = 4
-            THEN STR_TO_DATE(`Invoice Date`, '%m/%d/%Y')
-        ELSE STR_TO_DATE(`Invoice Date`, '%m/%d/%y')
+        WHEN LENGTH(SUBSTRING_INDEX(`INVOICE_DATE`, '/', -1)) = 4
+            THEN STR_TO_DATE(`INVOICE_DATE`, '%m/%d/%Y')
+        ELSE STR_TO_DATE(`INVOICE_DATE`, '%m/%d/%y')
     END,                                                   -- INVOICE_DATE
     NULL,                                                  -- INVOICE_RECEIVED_DATE
-    NULL,                                                  -- INVOICE_ACCOUNTING_DATE
-    NULL,                                                  -- MEMO
+    CLOSE_DATE,                                                  -- INVOICE_ACCOUNTING_DATE
+    `MEMO_NOTE`,                                           -- MEMO
     NULL,                                                  -- DISCOUNT_DATE
-    NULL,                                                  -- DUE_DATE
-    `Invoice Total Amount`,                                -- INVOICE_AMOUNT (derived total)
+    CASE
+        WHEN LENGTH(SUBSTRING_INDEX(`INVOICE_DUE_DATE`, '/', -1)) = 4
+            THEN STR_TO_DATE(`INVOICE_DUE_DATE`, '%m/%d/%Y')
+        ELSE STR_TO_DATE(`INVOICE_DUE_DATE`, '%m/%d/%y')
+    END,                                                   -- DUE_DATE
+    `INVOICE_TOTAL_AMOUNT`,                                -- INVOICE_AMOUNT
     NULL,                                                  -- INVOICE_STATUS1
     NULL,                                                  -- BALANCE_DUE
     NULL,                                                  -- CURRENCY
@@ -133,42 +127,39 @@ SELECT
     NULL,                                                  -- ADJUSTMENT
     NULL,                                                  -- ADJUSTMENT_REASON
     NULL,                                                  -- PROCUREMENT_RELATED
-    `Purchase Orders`,                                     -- PURCHASE_ORDERS
-    `Purchase Orders`,                                                  -- EXTERNAL_PO_NUMBER
+    `PO_NUMBER`,                                           -- PURCHASE_ORDERS
+    `PO_NUMBER`,                                           -- EXTERNAL_PO_NUMBER
     NULL,                                                  -- INVOICE_CREATED_BY
-    `Derived Invoice Line Amount`,                                                  -- PAYMENT_AMOUNT
+    `INVOICE_LINE_AMOUNT`,                                 -- PAYMENT_AMOUNT
     NULL,                                                  -- PAYMENT_HANDLING_INSTRUCTION
     NULL,                                                  -- SUPPLIER_INVOICE_REFERENCE_ID
-    `Check Number`,                                        -- CHECK_NUMBER
-    `Cost Center`,                                         -- COST_CENTER
-    Company,                                                  -- LOCATION
+    `CHECK_NUMBER`,                                        -- CHECK_NUMBER
+    `COST_CENTER_CODE`,                                    -- COST_CENTER
+    `LOCATION_FACILITY`,                                   -- LOCATION
     NULL,                                                  -- SITE
-    `Line Description`,                                    -- LINE_DESCRIPTION
+    `ITEM_DESCRIPTION`,                                    -- LINE_DESCRIPTION
     NULL,                                                  -- APPROVAL_DATE
-    NULL,                                                  -- PAYMENT_TYPE
-    NULL,                                                  -- SETTLEMENT_RUN_NUMBER
+    `PAYMENT_TYPE`,                                        -- PAYMENT_TYPE
+    CAST(`SETTLEMENT_RUN_NUMBER` AS CHAR),                 -- SETTLEMENT_RUN_NUMBER
     NULL,                                                  -- IS_ON_HOLD
-    NULL,                                                  -- SUPPLIER_DOCUMENT_RECEIVED
-    `Distribution Quantity`,                               -- QUANTITY
-    `Unit of Measure`,                                     -- UNIT_OF_MEASURE
-    `Unit Cost`,                                           -- UNIT_COST
-    `Invoice Line Amount`,                         -- EXTENDED_AMOUNT (derived line amount)
+    DISCOUNT_AMOUNT,                                                  -- SUPPLIER_DOCUMENT_RECEIVED
+    `INVOICE_LINE_QTY`,                                    -- QUANTITY
+    `UNIT_PURCHASE_PRICE_UOM`,                             -- UNIT_OF_MEASURE
+    `INVOICE_UNIT_PRICE`,                                  -- UNIT_COST
+    `INVOICE_LINE_AMOUNT`,                                 -- EXTENDED_AMOUNT
     NULL,                                                  -- DOCUMENT_LINK
-    `Payment Date`,                                        -- PAYMENT_DATE
-    NULL,                                                  -- DOCUMENT_PAYMENT_STATUS
-    `Payment Status`,                                      -- PAYMENT_STATUS
+    `PAYMENT_DATE`,                                        -- PAYMENT_DATE
+    PAYMENT_STATUS,                                                  -- DOCUMENT_PAYMENT_STATUS
+    `PAYMENT_STATUS`,                                      -- PAYMENT_STATUS
     NULL,                                                  -- PROJECT
     NULL,                                                  -- GRANT
     NULL,                                                  -- GIFT
     NULL,                                                  -- LINE_COMPANY
     NULL,                                                  -- PAYEE_ALTERNATE_NAMES
-    NULL,                                                  -- EXTERNAL_SYSTEM_ID_REFERENCE
+    REVERSALS_CREDITS,                                                  -- EXTERNAL_SYSTEM_ID_REFERENCE
     'admin',                                               -- load_user
     CURRENT_DATE,                                          -- load_date
-    'FTI_UMass_Supplier_Invoice_v1',                       -- file_name
+    'inmar_source_data',                                   -- file_name
     'admin',                                               -- user_name
     '20250521123456'                                       -- execution_id
-FROM umass.`FTI_UMass_Supplier_Invoice_v1`;
-
-
-
+FROM inmar.`inmar_source_data`;
