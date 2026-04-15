@@ -100,25 +100,13 @@ SELECT
     `PAYMENT_TERMS_DESCRIPTION`,                           -- DEFAULT_PAYMENT_TERMS
     `PAYMENT_METHOD`,                                      -- DEFAULT_PAYMENT_TYPE
     `INVOICE_NUMBER_SUPPLIER`,                             -- SUPPLIERS_INVOICE_NUMBER
-    CASE
-        WHEN LENGTH(SUBSTRING_INDEX(`CREATED_ON_DATE`, '/', -1)) = 4
-            THEN STR_TO_DATE(`CREATED_ON_DATE`, '%m/%d/%Y')
-        ELSE STR_TO_DATE(`CREATED_ON_DATE`, '%m/%d/%y')
-    END,                                                   -- CREATED_ON
-    CASE
-        WHEN LENGTH(SUBSTRING_INDEX(`INVOICE_DATE`, '/', -1)) = 4
-            THEN STR_TO_DATE(`INVOICE_DATE`, '%m/%d/%Y')
-        ELSE STR_TO_DATE(`INVOICE_DATE`, '%m/%d/%y')
-    END,                                                   -- INVOICE_DATE
+    l1_t0004_db.fn_parse_any_date(`CREATED_ON_DATE`)  ,  -- CREATED_ON
+  l1_t0004_db.fn_parse_any_date(`INVOICE_DATE`)     ,                                       -- INVOICE_DATE
     NULL,                                                  -- INVOICE_RECEIVED_DATE
-    CLOSE_DATE,                                                  -- INVOICE_ACCOUNTING_DATE
+    l1_t0004_db.fn_parse_any_date(CLOSE_DATE),                                                  -- INVOICE_ACCOUNTING_DATE
     `MEMO_NOTE`,                                           -- MEMO
     NULL,                                                  -- DISCOUNT_DATE
-    CASE
-        WHEN LENGTH(SUBSTRING_INDEX(`INVOICE_DUE_DATE`, '/', -1)) = 4
-            THEN STR_TO_DATE(`INVOICE_DUE_DATE`, '%m/%d/%Y')
-        ELSE STR_TO_DATE(`INVOICE_DUE_DATE`, '%m/%d/%y')
-    END,                                                   -- DUE_DATE
+ l1_t0004_db.fn_parse_any_date(`INVOICE_DUE_DATE`),                                                 -- DUE_DATE
     `INVOICE_TOTAL_AMOUNT`,                                -- INVOICE_AMOUNT
     NULL,                                                  -- INVOICE_STATUS1
     NULL,                                                  -- BALANCE_DUE
@@ -148,7 +136,7 @@ SELECT
     `INVOICE_UNIT_PRICE`,                                  -- UNIT_COST
     `INVOICE_LINE_AMOUNT`,                                 -- EXTENDED_AMOUNT
     NULL,                                                  -- DOCUMENT_LINK
-    `PAYMENT_DATE`,                                        -- PAYMENT_DATE
+    l1_t0004_db.fn_parse_any_date(`PAYMENT_DATE`),                                        -- PAYMENT_DATE
     PAYMENT_STATUS,                                                  -- DOCUMENT_PAYMENT_STATUS
     `PAYMENT_STATUS`,                                      -- PAYMENT_STATUS
     NULL,                                                  -- PROJECT
