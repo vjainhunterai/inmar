@@ -1,0 +1,8 @@
+SELECT 
+    table_schema AS database_name,
+    COUNT(*) AS total_tables,
+    ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb,
+    ROUND(SUM(data_length + index_length) / 1024 / 1024 / 1024, 2) AS size_gb
+FROM information_schema.tables
+GROUP BY table_schema
+ORDER BY size_gb DESC;
