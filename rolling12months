@@ -1,0 +1,27 @@
+INSERT INTO joblog_metadata.rolling_window_control 
+    (window_start, window_end, status, rows_inserted, started_at, completed_at, error_message)
+WITH RECURSIVE date_series AS (
+    -- Start from the first day of the month of the earliest CREATED_ON
+    SELECT DATE_FORMAT(
+              (SELECT MIN(CREATED_ON) FROM l1_t0004_db.temp_ap_inv), 
+              '%Y-%m-01'
+           ) AS window_start
+    UNION ALL
+    SELECT DATE_ADD(window_start, INTERVAL 1 MONTH)
+    FROM date_series
+    WHERE DATE_ADD(window_start, INTERVAL 12 MONTH) <= 
+          (SELECT MAX(CREATED_ON) FROM l1_t0004_db.temp_ap_inv)
+)
+SELECT 
+    window_start,
+    LAST_DAY(DATE_ADD(window_start, INTERVAL 11 MONTH)) AS window_end,
+    'PENDING' AS status,
+    NULL AS rows_inserted,
+    NULL AS started_at,
+    NULL AS completed_at,
+    NULL AS error_message
+FROM date_series
+WHERE NOT EXISTS (
+    SELECT 1 FROM joblog_metadata.rolling_window_control rwc 
+    WHERE rwc.window_start = date_series.window_start
+);
