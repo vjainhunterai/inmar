@@ -1,0 +1,27 @@
+WITH group_signatures AS (
+    SELECT 
+        Matched_Record_Number,
+        GROUP_CONCAT(seq_no ORDER BY seq_no SEPARATOR ',') as seq_signature
+    FROM anomaly.duplicate_ap_invoice
+    GROUP BY Matched_Record_Number
+),
+first_occurrence AS (
+    SELECT 
+        seq_signature,
+        MIN(Matched_Record_Number) as keep_group
+    FROM group_signatures
+    GROUP BY seq_signature
+)
+
+SELECT 
+    a.seq_no,
+    a.Matched_Record_Number,
+    a.Pay_Amount2,
+    a.Invoice_Number
+FROM anomaly.duplicate_ap_invoice a
+INNER JOIN group_signatures g 
+    ON a.Matched_Record_Number = g.Matched_Record_Number
+INNER JOIN first_occurrence f 
+    ON g.seq_signature = f.seq_signature
+WHERE g.Matched_Record_Number = f.keep_group
+ORDER BY a.Matched_Record_Number, a.seq_no;
