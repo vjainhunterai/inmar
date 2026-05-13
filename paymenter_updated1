@@ -1,0 +1,3 @@
+UPDATE inmar.inmar_source_data_new_may2026
+SET PAYMENT_TERMS_DESCRIPTION = '14 Days Net'
+WHERE PAYMENT_TERMS_DESCRIPTION = CONCAT('14 Days Net', CHAR(10), ' ');
